@@ -13,25 +13,11 @@ class WeatherApp extends React.Component {
     }
     
 
-    getWeather(e=null) {
-        if (e) {
-            e.preventDefault();
-        }
-        
+    getWeather(latitude, longitude) {
         var that = this;
-        fetch('/weather')
-            .then(data => data.json())
-            .then(function(res) {
-                that.setState({
-                    data: res,
-                    temp: res.currently.apparentTemperature
-                });
-            });
-        
-    }
-    componentDidMount() {
-        var that = this;
-        fetch('/weather')
+        const url = `/weather?latitude=${latitude}&longitude=${longitude}`;
+
+        fetch(url)
             .then(data => data.json())
             .then(function(res) {
                 that.setState({
@@ -40,6 +26,20 @@ class WeatherApp extends React.Component {
                     summary: res.currently.summary
                 });
             });
+        
+    }
+    componentDidMount() {
+        var latitude = 20.3601;
+        var longitude = -71.0589;
+        this.getWeather(latitude, longitude);
+    }
+
+    locationSearch(e) {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        var latitude = data.get('latitude');
+        var longitude = data.get('longitude');
+        this.getWeather(latitude, longitude);
     }
 
 
@@ -52,7 +52,7 @@ class WeatherApp extends React.Component {
         return (
             <div>
                 <h1>Weather App</h1>
-                <Form loadWeather={this.getWeather.bind(this)}></Form>
+                <Form loadWeather={this.locationSearch.bind(this)}></Form>
                 <Temperature temp={tempDisplay} summary={this.state.summary}></Temperature>
                 
                 

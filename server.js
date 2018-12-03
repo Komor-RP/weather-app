@@ -7,9 +7,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/weather', (req, res) => {
     var API_KEY = process.env.DARKSKYAPI
-    var latitude = 42.3601;
-    var longitude = -71.0589;
-  
+    var latitude = req.query.latitude;
+    var longitude = req.query.longitude;
     request({
         method: 'GET',
         uri: `https://api.darksky.net/forecast/${API_KEY}/${latitude},${longitude}`,
