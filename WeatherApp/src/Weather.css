@@ -1,3 +1,6 @@
+body {
+    background-color: #dcebff;
+}
 h1 {
     text-align: center;
 }
@@ -6,4 +9,44 @@ h1 {
 }
 form {
     text-align: center;
+}
+.TimeDisplay h2 {
+    text-align: center;
+}
+.WeekDisplay {
+    margin: 20px 30px;
+    background-color: white;
+    display: flex;
+    text-align: center;
+    border-radius: 5px;
+}
+.WeekDisplay div {
+    border-left: 1px solid gray;
+    border-right: 1px solid gray;
+    padding: 0 10px;
+    flex-basis: 0%;
+    flex-grow: 1;
+}
+.WeekDisplay div:first-child {
+    border-left: none;
+}
+.WeekDisplay div:last-child {
+    border-right: none;
+}
+
+
+@media (max-width: 960px) {
+    .WeekDisplay {
+        flex-direction: column;
+        margin: 20px auto;
+        text-align: left;
+    }
+    .WeekDisplay div {
+        width: 100%;
+        border-left: none;
+        border-right: none;
+        border-bottom: 3px solid black;
+        box-sizing: border-box;
+    }
+    
 }
