@@ -33,6 +33,10 @@ form {
 .WeekDisplay div:last-child {
     border-right: none;
 }
+.DayDisplay .svg-inline--fa {
+    height: 3em;
+    width: 3em;
+}
 
 
 @media (max-width: 960px) {
