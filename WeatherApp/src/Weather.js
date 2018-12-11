@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import './Weather.css';
 import * as moment from  'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAbacus, faCloudDrizzle, faCloudRain, faClouds, faCloudSnow, faFog, faCloudMoon, faCloudSun, faCloud } from '@fortawesome/pro-regular-svg-icons';
+import { faCloudDrizzle, faCloudRain, faClouds, faCloudSnow, faFog, faCloudMoon, faCloudSun, faCloud } from '@fortawesome/pro-regular-svg-icons';
+import Plot from 'react-plotly.js';
 
 
 class WeatherApp extends React.Component {
@@ -50,7 +51,7 @@ class WeatherApp extends React.Component {
         let tempDisplay;
         let weekTemp;
         if (this.state.data != null) {
-            tempDisplay = `${this.state.temp} Fahrenheit`;
+            tempDisplay = `${this.state.temp} ${String.fromCharCode(176)}F`;
             weekTemp = this.state.data.daily;
         }
         
@@ -61,10 +62,106 @@ class WeatherApp extends React.Component {
                 <TimeDisplay></TimeDisplay>
                 <Temperature temp={tempDisplay} summary={this.state.summary}></Temperature>
                 <WeekDisplay weather={ weekTemp }></WeekDisplay>
-                
+                <HourDisplay hourly={ this.state.data ? this.state.data.hourly : null }></HourDisplay>
             </div>
             
         );
+    }
+}
+
+class HourDisplay extends React.Component {
+
+    getHourlyWeather(dataType, color) {
+        if (this.props.hourly) {
+            let times = this.props.hourly.data.map(function(hourly) {
+                return hourly.time;
+            });
+            let data = this.props.hourly.data.map(function(hourly) {
+                return hourly[dataType];
+            });
+
+            return {
+                x: times,
+                y: data,
+                mode: 'line',
+                marker: {color: color},
+            };
+        }
+    }
+
+    render() {
+        
+        let trace1 = this.getHourlyWeather('temperature', 'rgb(235,154,116)');
+        let trace2 = this.getHourlyWeather('precipProbability', 'rgb(116,197,235)');
+        if (trace1) {
+            let tickvals = trace1.x.filter((time, index) => index % 4 === 0);
+            let ticklabels  = tickvals.map(time => moment.unix(time).format('ddd hA'));
+            return (
+                <div>
+                    <Plot
+                        data={[
+                            trace1
+                        ]}
+                        layout={ {
+                            autosize: true,
+                            title: 'Temperature over Next 48 hours',
+                            xaxis: {
+                                showticklabels: true,
+                                tickangle: 45,
+                                tickvals: tickvals,
+                                ticktext: ticklabels,
+                                ticks: 'outside',
+                                tickwidth: 2,
+                                ticklen: 3
+                            
+                            },
+                            yaxis: {
+                                title: `Temperature ${String.fromCharCode(176)}F`,
+                                showgrid: false,
+                                ticks: 'outside',
+                                tickwidth: 2
+                            }
+                        } }
+                        useResizeHandler={ true }
+                        style= { {width: "100%", height: "100%"} }
+                    />
+
+                    <Plot
+                        data={[
+                            trace2
+                        ]}
+                        layout={ {
+                            autosize: true,
+                            title: 'Chances of Precipitation over Next 48 hours',
+                            xaxis: {
+                                showticklabels: true,
+                                tickangle: 45,
+                                ticks: 'outside',
+                                tickvals: tickvals,
+                                ticktext: ticklabels,
+                                tickwidth: 2,
+                                ticklen: 3
+                            
+                            },
+                            yaxis: {
+                                title: `Chance of Precipitation`,
+                                showgrid: false,
+                                ticks: 'outside',
+                                tickwidth: 2
+                            }
+                        } }
+                        useResizeHandler={ true }
+                        style= { {width: "100%", height: "100%"} }
+                    />
+                    
+                </div>
+                
+                
+            
+            );
+        } else {
+            return null;
+        }
     }
 }
 
@@ -78,51 +175,22 @@ class WeekDisplay extends React.Component {
     //pass the props down to day display
     render () {
         let now = moment().format('dddd');
+        let days = [];
+        for (let i = 0; i < 7; i ++) {
+            days.push(
+                <DayDisplay
+                    day={ moment(new Date()).add(i, 'days').format('dddd') }
+                    icon={ this.props.weather ? this.props.weather.data[i].icon : null}
+                    temp={ this.props.weather ? 
+                        `${this.props.weather.data[i].temperatureLow}${String.fromCharCode(176)}F - ${this.props.weather.data[i].temperatureHigh}${String.fromCharCode(176)}F` : null }
+                    key={`day${i}`}>
+                </DayDisplay>
+            );
+        }
 
         return (
             <div className="WeekDisplay">
-                <DayDisplay
-                    day={ now }
-                    icon={ this.props.weather ? this.props.weather.data[0].icon : null}
-                    temp={ this.props.weather ? 
-                        `${this.props.weather.data[0].temperatureLow}-${this.props.weather.data[0].temperatureHigh}` : null }>
-                </DayDisplay>
-                <DayDisplay
-                    day={ moment(new Date()).add(1, 'days').format('dddd') }
-                    icon={ this.props.weather ? this.props.weather.data[1].icon : null}
-                    temp={ this.props.weather ? 
-                        `${this.props.weather.data[1].temperatureLow}-${this.props.weather.data[1].temperatureHigh}` : null }>
-                </DayDisplay>
-                <DayDisplay
-                    day={ moment(new Date()).add(2, 'days').format('dddd') }
-                    icon={ this.props.weather ? this.props.weather.data[2].icon : null}
-                    temp={ this.props.weather ? 
-                        `${this.props.weather.data[2].temperatureLow}-${this.props.weather.data[2].temperatureHigh}` : null }>
-                </DayDisplay>
-                <DayDisplay
-                    day={ moment(new Date()).add(3, 'days').format('dddd') }
-                    icon={ this.props.weather ? this.props.weather.data[3].icon : null}
-                    temp={ this.props.weather ? 
-                        `${this.props.weather.data[3].temperatureLow}-${this.props.weather.data[3].temperatureHigh}` : null }>
-                </DayDisplay>
-                <DayDisplay
-                    day={ moment(new Date()).add(4, 'days').format('dddd') }
-                    icon={ this.props.weather ? this.props.weather.data[4].icon : null}
-                    temp={ this.props.weather ? 
-                        `${this.props.weather.data[4].temperatureLow}-${this.props.weather.data[4].temperatureHigh}` : null }>
-                </DayDisplay>
-                <DayDisplay
-                    day={ moment(new Date()).add(5, 'days').format('dddd') }
-                    icon={ this.props.weather ? this.props.weather.data[5].icon : null}
-                    temp={ this.props.weather ? 
-                        `${this.props.weather.data[5].temperatureLow}-${this.props.weather.data[5].temperatureHigh}` : null }>
-                </DayDisplay>
-                <DayDisplay
-                    day={ moment(new Date()).add(6, 'days').format('dddd') }
-                    icon={ this.props.weather ? this.props.weather.data[6].icon : null}
-                    temp={ this.props.weather ? 
-                        `${this.props.weather.data[6].temperatureLow}-${this.props.weather.data[6].temperatureHigh}` : null }>
-                </DayDisplay>
+                {days}
             </div>
         );
     }

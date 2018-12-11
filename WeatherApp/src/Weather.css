@@ -4,7 +4,6 @@ h1, h2, h3, h4, h5, h6, p, span, a, input {
     font-family: 'Fira Sans', sans-serif;
 }
 body {
-    height: 100vh;
     margin-top: 60px;
     background: linear-gradient(to bottom, #74ebd5 10%, #9face6 100%);
 }
